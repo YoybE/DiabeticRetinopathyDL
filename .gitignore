@@ -1,3 +1,8 @@
+# Temporary Files
+__pycache__/
+.vscode/
+
+# Generated Files
 dataset/
-.png
 outputs/
+.png
