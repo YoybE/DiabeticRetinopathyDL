@@ -75,38 +75,35 @@ def plot_anomalies(validation_dataset,
     plt.tight_layout()
     plt.show()
 
-def plot_anomaly_distribution(train_dataloader, validation_dataloader, test_dataloader):
-
-    torch.manual_seed(42)
-    train = [sum(l == 1) for i,l in train_dataloader]
+def plot_anomaly_distribution(train, validation, batch_size):
+    train = [v.cpu() for v in train]
+    train_normal = [batch_size-v for v in train]
+    validation = [v.cpu() for v in validation]
+    validation_normal = [batch_size-v for v in validation]
     n_train = len(train)
-    validation = [sum(l == 1) for i,l in validation_dataloader]
     n_validation = len(validation)
-    test = [sum(l == 1) for i,l in test_dataloader]
-    n_test = len(test)
 
-    cmap = plt.get_cmap('OrRd')
-    fig, axes = plt.subplots(1, 3, figsize=(9,3))
+    fig, axes = plt.subplots(1, 2, figsize=(10,5))
 
     # Set all axes to hug left (west)
     axes[0].set_anchor('W')
     axes[1].set_anchor('W')
-    axes[2].set_anchor('W')
 
     # Train Distribution
     _ = axes[0].set_title("Anomaly Distribution (Train)")
+    bs_list = list(range(n_train))
     norm = mcolors.Normalize(min(train), max(train))
-    axes[0].bar(list(range(n_train)), train, color=cmap(norm(train)))
+    axes[0].bar(bs_list, train, color='red')
+    norm = mcolors.Normalize(min(train_normal), max(train_normal))
+    axes[0].bar(bs_list, train_normal, bottom=train, color='green')
 
     # Validation Distribution
     _ = axes[1].set_title("Anomaly Distribution (Val)")
+    bs_list = list(range(n_validation))
     norm = mcolors.Normalize(min(validation), max(validation))
-    axes[1].bar(list(range(n_validation)), validation, color=cmap(norm(validation)))
-
-    # Test Distribution
-    _ = axes[2].set_title("Anomaly Distribution (Test)")
-    norm = mcolors.Normalize(min(test), max(test))
-    axes[2].bar(list(range(n_test)), test, color=cmap(norm(test)))
+    axes[1].bar(bs_list, validation, color='red')
+    norm = mcolors.Normalize(min(validation_normal), max(validation_normal))
+    axes[1].bar(bs_list, validation_normal, bottom=validation, color='green')
 
     plt.tight_layout()
     plt.show()

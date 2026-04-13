@@ -7,6 +7,7 @@ import os
 import shutil
 
 from .io import save_image
+from .visualization import plot_anomaly_distribution
 
 def train_model(model, 
                 criterion, 
@@ -37,6 +38,8 @@ def train_model(model,
     train_acc_list = []
     val_loss_list = []
     val_acc_list = []
+    train = []
+    validation = []
 
     # Initialize Adam optimizer
     optimizer = torch.optim.Adam(model.parameters(), weight_decay=1e-5, lr=lr)
@@ -63,6 +66,7 @@ def train_model(model,
             running_loss += loss.item()
             pred = [torch.argmax(p) for p in outputs]
             correct += sum(p==t for p,t in zip(pred, labels))
+            train.append(sum(t==1 for t in labels))
             total += len(labels)
             
         epoch_acc = correct/total
@@ -80,6 +84,7 @@ def train_model(model,
                 val_running_loss += loss.item()
                 pred = [torch.argmax(p) for p in outputs]
                 val_correct += sum(p==t for p,t in zip(pred, labels))
+                validation.append(sum(t==1 for t in labels))
                 val_total += len(labels)
         
         val_epoch_acc = val_correct/val_total
@@ -96,6 +101,7 @@ def train_model(model,
         if (verbose):
             print(f" Training Loss: {epoch_loss:.6f}   | Training Accuracy: {epoch_acc:.4f}\n Validation Loss: {val_epoch_loss:.6f} | Validation Accuracy: {val_epoch_acc:.4f}")
     
+    plot_anomaly_distribution(train, validation, train_dataloader.batch_size)
     plot_train_val(train_loss_list, train_acc_list, val_loss_list, val_acc_list)
 
 def plot_train_val(train_loss_list, train_acc_list, val_loss_list, val_acc_list):
@@ -189,6 +195,11 @@ def evaluate_model(model, dataloader, output_dir="./outputs", device=None):
 
     acc = (tp+tn)/len(dataloader.dataset)
     f1_score = 2*((precision*recall)/(precision+recall))
+    if (torch.isnan(f1_score)):
+        f1_score = 0
+
     f2_score = 5*((precision*recall)/(4*precision+recall))
+    if (torch.isnan(f2_score)):
+        f2_score = 0
     
     return acc*100, f1_score, f2_score, recall*100
