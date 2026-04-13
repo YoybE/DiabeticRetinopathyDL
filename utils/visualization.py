@@ -3,6 +3,81 @@ import matplotlib.colors as mcolors
 import torch
 import os
 
+def visualize_dataset():
+    '''
+    Plots 5 images for each class within the DiabeticRetinopathy dataset for visualization
+    '''
+
+    fig, axes = plt.subplots(2, 5, figsize=(8,4))
+
+    for idx in range(5):
+        # Set all axes to hug left (west)
+        axes[0][idx].set_anchor('W')
+        axes[1][idx].set_anchor('W')
+
+        # 'Healthy' Images
+        axes[0][idx].set_xticks([])
+        axes[0][idx].set_yticks([])
+        healthy_fp = "Healthy_{}.png".format(idx+2)
+        _ = axes[0][idx].set_title(healthy_fp, fontsize=10)
+        img = plt.imread("./dataset/Healthy/{}".format(healthy_fp))
+        axes[0][idx].imshow(img)
+
+        # 'Severe DR' Images
+        axes[1][idx].set_xticks([])
+        axes[1][idx].set_yticks([])
+        severe_fp = "Severe DR_{}.png".format(idx+2)
+        _ = axes[1][idx].set_title(severe_fp, fontsize=10)
+        img = plt.imread("./dataset/Severe DR/{}".format(severe_fp))
+        axes[1][idx].imshow(img)
+
+    plt.tight_layout()
+    plt.show()
+
+def plot_train_val(train_loss_list, train_acc_list, val_loss_list, val_acc_list, save=False, name=None):
+    '''
+    Plots the training and validation loss/accuracy obtained during training
+    Training graphs are used to visualize the loss and accuracy during training
+    Validation graphs can help to determine signs of underfitting/overfitting
+    '''
+    save_dir = "./outputs/training/plots"
+    train_acc_list = [v.cpu() for v in train_acc_list]
+    val_acc_list = [v.cpu() for v in val_acc_list]
+
+    train_fig, (ax1, ax2) = plt.subplots(1,2)
+    ax1.plot(train_loss_list, "orange")
+    ax2.plot(train_acc_list)
+    _ = ax1.set_title("Training Loss")
+    _ = ax2.set_title("Training Accuracy")
+    _ = ax1.set_xlabel("Epoch")
+    _ = ax1.set_ylabel("Loss")
+    _ = ax2.set_xlabel("Epoch")
+    _ = ax2.set_ylabel("Accuracy")
+    plt.subplots_adjust(right=2)
+    plt.tight_layout()
+    if (save):
+        plt.savefig("{}/train_{}.jpeg".format(save_dir, name))
+        plt.close()
+    else:
+        plt.show()
+
+    val_fig, (ax1, ax2) = plt.subplots(1,2)
+    ax1.plot(val_loss_list, "orange")
+    ax2.plot(val_acc_list)
+    _ = ax1.set_title("Validation Loss")
+    _ = ax2.set_title("Validation Accuracy")
+    _ = ax1.set_xlabel("Epoch")
+    _ = ax1.set_ylabel("Loss")
+    _ = ax2.set_xlabel("Epoch")
+    _ = ax2.set_ylabel("Accuracy")
+    plt.subplots_adjust(right=2)
+    plt.tight_layout()
+    if (save):
+        plt.savefig("{}/val_{}.jpeg".format(save_dir, name))
+        plt.close()
+    else:
+        plt.show()
+
 def plot_anomalies(validation_dataset, 
                    test_dataset, 
                    val_dir="./outputs/val", 
@@ -75,7 +150,8 @@ def plot_anomalies(validation_dataset,
     plt.tight_layout()
     plt.show()
 
-def plot_anomaly_distribution(train, validation, batch_size):
+def plot_anomaly_distribution(train, validation, batch_size, save=False, name=None):
+    save_dir = "./outputs/training/plots"
     train = [v.cpu() for v in train]
     train_normal = [batch_size-v for v in train]
     validation = [v.cpu() for v in validation]
@@ -106,4 +182,8 @@ def plot_anomaly_distribution(train, validation, batch_size):
     axes[1].bar(bs_list, validation_normal, bottom=validation, color='green')
 
     plt.tight_layout()
-    plt.show()
+    if (save):
+        plt.savefig("{}/dist_{}.jpeg".format(save_dir, name))
+        plt.close()
+    else:
+        plt.show()

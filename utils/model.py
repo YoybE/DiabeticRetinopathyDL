@@ -7,7 +7,7 @@ import os
 import shutil
 
 from .io import save_image
-from .visualization import plot_anomaly_distribution
+from .visualization import plot_train_val, plot_anomaly_distribution
 
 def train_model(model, 
                 criterion, 
@@ -97,44 +97,23 @@ def train_model(model,
         val_loss_list.append(val_epoch_loss)
         val_acc_list.append(val_epoch_acc)
         
-        print(f"Epoch [{epoch+1}/{num_epochs}]:")
         if (verbose):
+            print(f"Epoch [{epoch+1}/{num_epochs}]:")
             print(f" Training Loss: {epoch_loss:.6f}   | Training Accuracy: {epoch_acc:.4f}\n Validation Loss: {val_epoch_loss:.6f} | Validation Accuracy: {val_epoch_acc:.4f}")
-    
-    plot_anomaly_distribution(train, validation, train_dataloader.batch_size)
-    plot_train_val(train_loss_list, train_acc_list, val_loss_list, val_acc_list)
+        else:
+            print(f"Epoch [{epoch+1}/{num_epochs}]", end="")
+            print("\r", end="")
 
-def plot_train_val(train_loss_list, train_acc_list, val_loss_list, val_acc_list):
-    '''
-    Plots the training and validation loss/accuracy obtained during training
-    Training graphs are used to visualize the loss and accuracy during training
-    Validation graphs can help to determine signs of underfitting/overfitting
-    '''
+    if (verbose):
+        plot_anomaly_distribution(train, validation, train_dataloader.batch_size)
+        plot_train_val(train_loss_list, train_acc_list, val_loss_list, val_acc_list)
+    else:
+        save_dir = "./outputs/training/compare/plots"
+        if (not os.path.exists(save_dir)):
+            os.makedirs(save_dir)
 
-    train_acc_list = [v.cpu() for v in train_acc_list]
-    val_acc_list = [v.cpu() for v in val_acc_list]
-
-    train_fig, (ax1, ax2) = plt.subplots(1,2)
-    ax1.plot(train_loss_list, "orange")
-    ax2.plot(train_acc_list)
-    _ = ax1.set_title("Training Loss")
-    _ = ax2.set_title("Training Accuracy")
-    _ = ax1.set_xlabel("Epoch")
-    _ = ax1.set_ylabel("Loss")
-    _ = ax2.set_xlabel("Epoch")
-    _ = ax2.set_ylabel("Accuracy")
-    plt.subplots_adjust(right=2)
-
-    val_fig, (ax1, ax2) = plt.subplots(1,2)
-    ax1.plot(val_loss_list, "orange")
-    ax2.plot(val_acc_list)
-    _ = ax1.set_title("Validation Loss")
-    _ = ax2.set_title("Validation Accuracy")
-    _ = ax1.set_xlabel("Epoch")
-    _ = ax1.set_ylabel("Loss")
-    _ = ax2.set_xlabel("Epoch")
-    _ = ax2.set_ylabel("Accuracy")
-    plt.subplots_adjust(right=2)
+        plot_anomaly_distribution(train, validation, train_dataloader.batch_size, save=True, name=model._name)
+        plot_train_val(train_loss_list, train_acc_list, val_loss_list, val_acc_list, save=True, name=model._name)
 
 def evaluate_model(model, dataloader, output_dir="./outputs", device=None):
     '''

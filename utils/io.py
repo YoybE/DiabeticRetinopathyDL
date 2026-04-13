@@ -41,16 +41,18 @@ def save_image(img_out, label_out, dir, type, batch_size, batch=0):
 
     del out, pred
 
-def save_model(model, name, epoch, dir="./models", ckpt=False, **kwargs):
+def save_model(model, name, epoch, dir="./outputs/models", ckpt=False, **kwargs):
     '''
     Saves model to disk in the format {name}_{epoch}_{kwargs}-{date}
     
     E.g. save_model(model, "test", 20, lr=0.001) is saved as "test_20_lr0.001-20260413.pt"
     '''
     from datetime import datetime
-
     meta = ""
     date = datetime.now().strftime("%Y%m%d")
+
+    if (not os.path.exists(dir)):
+        os.makedirs(dir)
 
     if (kwargs):
         for k, v in kwargs.items():
