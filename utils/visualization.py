@@ -40,7 +40,7 @@ def plot_train_val(train_loss_list, train_acc_list, val_loss_list, val_acc_list,
     Training graphs are used to visualize the loss and accuracy during training
     Validation graphs can help to determine signs of underfitting/overfitting
     '''
-    save_dir = "./outputs/training/plots"
+    save_dir = "./outputs/training/compare/plots"
     train_acc_list = [v.cpu() for v in train_acc_list]
     val_acc_list = [v.cpu() for v in val_acc_list]
 
@@ -151,7 +151,7 @@ def plot_anomalies(validation_dataset,
     plt.show()
 
 def plot_anomaly_distribution(train, validation, batch_size, save=False, name=None):
-    save_dir = "./outputs/training/plots"
+    save_dir = "./outputs/training/compare/plots"
     train = [v.cpu() for v in train]
     train_normal = [batch_size-v for v in train]
     validation = [v.cpu() for v in validation]

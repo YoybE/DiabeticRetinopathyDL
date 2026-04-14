@@ -4,11 +4,13 @@ import torch.nn as nn
 from utils import train_model, evaluate_model, save_model
 from IPython.display import clear_output
 import os
+import shutil
 
 def compare_architecture(train_dataloader, 
                          validation_dataloader,
                          test_dataloader,
-                         device=None):
+                         device=None,
+                         reload=False):
     '''
     Loads all *.py model classifiers found in /models, either train or load their corresponding models and produce a metric table of the model classifiers
     '''    
@@ -25,6 +27,12 @@ def compare_architecture(train_dataloader,
     model_dir = "./outputs/models/compare"
     eval_dir = "./outputs/training/compare/out"
 
+    if (not os.path.exists(model_dir)):
+        os.makedirs(model_dir)
+    else:
+        if (reload):
+            shutil.rmtree(f"{model_dir}/")
+            
     for i in range(n):
         curr_name = model_names[i]
 
