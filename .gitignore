@@ -5,6 +5,5 @@ __pycache__/
 # Generated Files
 dataset/
 outputs/
-models/
 *.png
 *.pt
