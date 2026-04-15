@@ -46,14 +46,14 @@ def import_dataset():
         shutil.rmtree(complete_path)
         print("Removed .complete folder")
 
-def initialize_dataset(normalized: bool = False):
+def initialize_dataset(transforms=None):
     # For loading the Diabetic Retinopathy Dataset
-    if (normalized):
+    if transforms is None:
         transforms_base = transforms.Compose([transforms.ToTensor(),
-                                          transforms.Normalize(mean=[0.485, 0.456, 0.406], 
-                                                               std=[0.229, 0.224, 0.225])]) # Normalization values from Pytorch's recommended ImageNet values
+                                            transforms.Normalize(mean=[0.485, 0.456, 0.406], 
+                                                                std=[0.229, 0.224, 0.225])]) # Normalization values from Pytorch's recommended ImageNet values
     else:
-        transforms_base = transforms.Compose([transforms.ToTensor()])
+        transforms_base = transforms
 
     # full_dataset[i] is a a tuple of (image tensor, class index)
     full_dataset = torchvision.datasets.DatasetFolder(root="./dataset", loader=torchvision.datasets.folder.default_loader, transform=transforms_base, extensions=[".png"])
