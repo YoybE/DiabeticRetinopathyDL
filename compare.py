@@ -27,12 +27,11 @@ def compare_architecture(train_dataloader,
     model_dir = "./outputs/models/compare"
     eval_dir = "./outputs/training/compare/out"
 
-    if (not os.path.exists(model_dir)):
-        os.makedirs(model_dir)
-    else:
-        if (reload):
+    if (not os.path.exists(model_dir)) or reload:
+        if reload and os.path.exists(model_dir):
             shutil.rmtree(f"{model_dir}/")
-            
+        os.makedirs(model_dir)
+
     for i in range(n):
         curr_name = model_names[i]
 
