@@ -51,7 +51,7 @@ def compare_architecture(train_dataloader,
             print(f"Successfully retrieved {curr_name} model...")
         
         # Prepare metrics for evaluation
-        save_metrics(model_list[i], train_dataloader, validation_dataloader, test_dataloader, device, eval_dir)
+        train_metrics[i], validation_metrics[i], test_metrics[i] = save_metrics(model_list[i], train_dataloader, validation_dataloader, test_dataloader, device, eval_dir)
         
         # Clearing space for other operations
         model_list[i] = None
