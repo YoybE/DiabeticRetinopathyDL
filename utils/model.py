@@ -143,7 +143,7 @@ def evaluate_model(model, dataloader, output_dir="./outputs", device=None):
     fn = 0
 
     save = (type(dataloader.sampler) != torch.utils.data.sampler.RandomSampler)
-    
+
     # Ensures that old evaluation images are not intertwined with new ones
     if os.path.exists(output_dir):
         shutil.rmtree(output_dir)
@@ -158,8 +158,9 @@ def evaluate_model(model, dataloader, output_dir="./outputs", device=None):
             _, predicted = torch.max(outputs, 1)
 
             if (save):
-                save_image(model.unet_output, predicted, output_dir, "out", dataloader.batch_size, batch)
-                batch += 1
+                if (not model.unet_output is None):
+                    save_image(model.unet_output, predicted, output_dir, "out", dataloader.batch_size, batch)
+                    batch += 1
             
             tp += sum((p == t == 1) for p,t in zip(predicted, labels))
             tn += sum((p == t == 0) for p,t in zip(predicted, labels))
