@@ -107,7 +107,9 @@ def split_dataset(full_dataset):
     return train_dataset, test_dataset, validation_dataset
 
 def initialize_dataloaders(train_dataset, test_dataset, validation_dataset, batch_size=32):
-    train_dataloader = DataLoader(train_dataset, batch_size, shuffle=True)
+    g = torch.Generator()
+    g.manual_seed(42)
+    train_dataloader = DataLoader(train_dataset, batch_size, shuffle=True, generator=g)
     test_dataloader = DataLoader(test_dataset, batch_size, shuffle=False)
     validation_dataloader = DataLoader(validation_dataset, batch_size, shuffle=False)
     return train_dataloader, test_dataloader, validation_dataloader

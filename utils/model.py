@@ -2,6 +2,7 @@ import torch
 import torchvision
 from torch.utils.data import DataLoader
 import matplotlib.pyplot as plt
+from torchvision.ops import sigmoid_focal_loss
 
 import os
 import shutil
@@ -41,6 +42,8 @@ def train_model(model,
     train = []
     validation = []
 
+    mapping = torch.Tensor([[1,0],[0,1]]).to(device)
+
     # Initialize Adam optimizer
     optimizer = torch.optim.Adam(model.parameters(), weight_decay=1e-5, lr=lr)
 
@@ -59,7 +62,10 @@ def train_model(model,
             labels = labels.to(device)
             optimizer.zero_grad()
             outputs = model(images)
-            loss = criterion(outputs, labels)
+            if isinstance(criterion, type(sigmoid_focal_loss)):
+                loss = criterion(outputs, mapping[labels], reduction="mean")
+            else:
+                loss = criterion(outputs, labels)
             loss.backward()
             optimizer.step()
 
@@ -79,7 +85,10 @@ def train_model(model,
                 labels = labels.to(device)
 
                 outputs = model(images)
-                loss = criterion(outputs, labels)
+                if isinstance(criterion, type(sigmoid_focal_loss)):
+                    loss = criterion(outputs, mapping[labels], reduction="mean")
+                else:
+                    loss = criterion(outputs, labels)
 
                 val_running_loss += loss.item()
                 pred = [torch.argmax(p) for p in outputs]
