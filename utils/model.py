@@ -176,10 +176,16 @@ def evaluate_model(model, dataloader, output_dir="./outputs", device=None):
     acc = (tp+tn)/len(dataloader.dataset)
     f1_score = 2*((precision*recall)/(precision+recall))
     if (torch.isnan(f1_score)):
-        f1_score = 0
+        f1_score = torch.Tensor([0])
 
     f2_score = 5*((precision*recall)/(4*precision+recall))
     if (torch.isnan(f2_score)):
-        f2_score = 0
+        f2_score = torch.Tensor([0])
     
+    # Convert from tensor to item to free memory
+    acc = acc.item()
+    f1_score = f1_score.item()
+    f2_score = f2_score.item()
+    recall = recall.item()
+
     return acc*100, f1_score, f2_score, recall*100
