@@ -101,7 +101,7 @@ def compare_models(models, train_dataloader, validation_dataloader, test_dataloa
 def train_save_model(model, model_dir, criterion, train_dataloader, validation_dataloader, device, verbose=False):
     model_name = model._name
     print(f"Training {model._name} model...")
-    train_model(model, criterion, train_dataloader, validation_dataloader, device, verbose=verbose)
+    _, _, _, _ = train_model(model, criterion, train_dataloader, validation_dataloader, device, verbose=verbose)
     print("Training finished, saving model...")
     save_model(model, model_name, 20, model_dir)
         
