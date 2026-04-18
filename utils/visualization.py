@@ -34,7 +34,7 @@ def visualize_dataset():
     plt.tight_layout()
     plt.show()
 
-def plot_train_val(train_loss_list, train_acc_list, val_loss_list, val_acc_list, save=False, name=None, save_dir="./outputs/training/compare/plots"):
+def plot_train_val(train_loss_list, train_acc_list, val_loss_list, val_acc_list, save=False, name=None, save_dir="./outputs/compare/plots"):
     '''
     Plots the training and validation loss/accuracy obtained during training
     Training graphs are used to visualize the loss and accuracy during training
@@ -82,7 +82,7 @@ def plot_val(axes, val_loss_list, val_acc_list, label=None):
     _ = axes[0].legend()
     _ = axes[1].legend()
 
-def multiplot_train_val(metrics, save, name="", save_dir="./outputs/training/compare/plots"):
+def multiplot_train_val(metrics, save, name="", save_dir="./outputs/compare/plots"):
     if (not os.path.exists(save_dir)):
         os.makedirs(save_dir)
 
@@ -172,7 +172,7 @@ def plot_anomalies(validation_dataset,
     plt.tight_layout()
     plt.show()
 
-def plot_anomaly_distribution(train, validation, batch_size, save=False, name=None, save_dir="./outputs/training/compare/plots"):
+def plot_anomaly_distribution(train, validation, batch_size, save=False, name=None, save_dir="./outputs/compare/plots"):
     train = [v.cpu() for v in train]
     train_normal = [batch_size-v for v in train]
     validation = [v.cpu() for v in validation]
