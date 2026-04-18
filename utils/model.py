@@ -16,7 +16,8 @@ def train_model(model,
                 validation_dataloader: DataLoader,
                 device=None, 
                 lr=0.001, 
-                num_epochs=20, 
+                num_epochs=20,
+                save_dir= "./outputs/compare/plots",
                 verbose=True):
     '''
     Trains model and plots Training/Validation Loss/Accuracy graphs
@@ -117,12 +118,11 @@ def train_model(model,
         plot_anomaly_distribution(train, validation, train_dataloader.batch_size)
         plot_train_val(train_loss_list, train_acc_list, val_loss_list, val_acc_list)
     else:
-        save_dir = "./outputs/training/compare/plots"
         if (not os.path.exists(save_dir)):
             os.makedirs(save_dir)
 
-        plot_anomaly_distribution(train, validation, train_dataloader.batch_size, save=True, name=model._name)
-        plot_train_val(train_loss_list, train_acc_list, val_loss_list, val_acc_list, save=True, name=model._name)
+        plot_anomaly_distribution(train, validation, train_dataloader.batch_size, save=True, name=model._name, save_dir=save_dir)
+        plot_train_val(train_loss_list, train_acc_list, val_loss_list, val_acc_list, save=True, name=model._name, save_dir=save_dir)
 
 def evaluate_model(model, dataloader, output_dir="./outputs", device=None):
     '''
@@ -184,10 +184,16 @@ def evaluate_model(model, dataloader, output_dir="./outputs", device=None):
     acc = (tp+tn)/len(dataloader.dataset)
     f1_score = 2*((precision*recall)/(precision+recall))
     if (torch.isnan(f1_score)):
-        f1_score = 0
+        f1_score = torch.Tensor([0])
 
     f2_score = 5*((precision*recall)/(4*precision+recall))
     if (torch.isnan(f2_score)):
-        f2_score = 0
+        f2_score = torch.Tensor([0])
+    
+    # Convert from tensor to item to free memory
+    acc = acc.item()
+    f1_score = f1_score.item()
+    f2_score = f2_score.item()
+    recall = recall.item()
     
     return acc*100, f1_score, f2_score, recall*100

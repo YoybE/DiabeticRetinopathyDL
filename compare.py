@@ -25,7 +25,7 @@ def compare_architecture(train_dataloader,
     test_metrics = []
 
     model_dir = "./outputs/models/compare"
-    eval_dir = "./outputs/training/compare/out"
+    eval_dir = "./outputs/compare/out"
 
     if (not os.path.exists(model_dir)):
         os.makedirs(model_dir)
@@ -51,8 +51,11 @@ def compare_architecture(train_dataloader,
             print(f"Successfully retrieved {curr_name} model...")
         
         # Prepare metrics for evaluation
-        train_metrics[i], validation_metrics[i], test_metrics[i] = save_metrics(model_list[i], train_dataloader, validation_dataloader, test_dataloader, device, eval_dir)
-        
+        train, val, test = save_metrics(model_list[i], train_dataloader, validation_dataloader, test_dataloader, device, eval_dir)
+        train_metrics.append(train)
+        validation_metrics.append(val)
+        test_metrics.append(test)
+
         # Clearing space for other operations
         model_list[i] = None
         torch.cuda.empty_cache()
@@ -102,7 +105,7 @@ def train_save_model(model, model_dir, criterion, train_dataloader, validation_d
     print("Training finished, saving model...")
     save_model(model, model_name, 20, model_dir)
         
-def save_metrics(model, train_dataloader, validation_dataloader, test_dataloader, device=None, eval_dir="./outputs/training/compare/out"):
+def save_metrics(model, train_dataloader, validation_dataloader, test_dataloader, device=None, eval_dir="./outputs/compare/out"):
     # Prepare metrics for evaluation comparison
     model_name = model._name
     print(f"Evaluating {model_name} model...")
