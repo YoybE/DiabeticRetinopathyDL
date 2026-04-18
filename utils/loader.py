@@ -46,9 +46,12 @@ def import_dataset():
         shutil.rmtree(complete_path)
         print("Removed .complete folder")
 
-def initialize_dataset():
+def initialize_dataset(t=None):
     # For loading the Diabetic Retinopathy Dataset
-    transforms_base = transforms.Compose([transforms.ToTensor()])
+    if t is None:
+        transforms_base = transforms.Compose([transforms.ToTensor()])
+    else:
+        transforms_base = t
 
     # full_dataset[i] is a a tuple of (image tensor, class index)
     full_dataset = torchvision.datasets.DatasetFolder(root="./dataset", loader=torchvision.datasets.folder.default_loader, transform=transforms_base, extensions=[".png"])
