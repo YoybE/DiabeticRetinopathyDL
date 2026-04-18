@@ -34,48 +34,71 @@ def visualize_dataset():
     plt.tight_layout()
     plt.show()
 
-def plot_train_val(train_loss_list, train_acc_list, val_loss_list, val_acc_list, save=False, name=None, save_dir = "./outputs/compare/plots"):
+def plot_train_val(train_loss_list, train_acc_list, val_loss_list, val_acc_list, save=False, name=None, save_dir="./outputs/compare/plots"):
     '''
     Plots the training and validation loss/accuracy obtained during training
     Training graphs are used to visualize the loss and accuracy during training
     Validation graphs can help to determine signs of underfitting/overfitting
     '''
-    train_acc_list = [v.cpu() for v in train_acc_list]
-    val_acc_list = [v.cpu() for v in val_acc_list]
+    train_fig, train_axes = plt.subplots(1,2, layout="constrained")
+    plot_train(train_axes, train_loss_list, train_acc_list)
+    save_plot(save, save_dir, "train", name)
 
-    train_fig, (ax1, ax2) = plt.subplots(1,2)
-    ax1.plot(train_loss_list, "orange")
-    ax2.plot(train_acc_list)
-    _ = ax1.set_title("Training Loss")
-    _ = ax2.set_title("Training Accuracy")
-    _ = ax1.set_xlabel("Epoch")
-    _ = ax1.set_ylabel("Loss")
-    _ = ax2.set_xlabel("Epoch")
-    _ = ax2.set_ylabel("Accuracy")
-    plt.subplots_adjust(right=2)
-    plt.tight_layout()
-    if (save):
-        plt.savefig("{}/train_{}.jpeg".format(save_dir, name))
-        plt.close()
-    else:
-        plt.show()
+    val_fig, val_axes = plt.subplots(1,2, layout="constrained")
+    plot_val(val_axes, val_loss_list, val_acc_list)
+    save_plot(save, save_dir, "val", name)
 
-    val_fig, (ax1, ax2) = plt.subplots(1,2)
-    ax1.plot(val_loss_list, "orange")
-    ax2.plot(val_acc_list)
-    _ = ax1.set_title("Validation Loss")
-    _ = ax2.set_title("Validation Accuracy")
-    _ = ax1.set_xlabel("Epoch")
-    _ = ax1.set_ylabel("Loss")
-    _ = ax2.set_xlabel("Epoch")
-    _ = ax2.set_ylabel("Accuracy")
-    plt.subplots_adjust(right=2)
-    plt.tight_layout()
-    if (save):
-        plt.savefig("{}/val_{}.jpeg".format(save_dir, name))
-        plt.close()
-    else:
-        plt.show()
+def plot_train(axes, train_loss_list, train_acc_list, label=None):
+    try:
+        train_acc_list = [v.cpu() for v in train_acc_list]
+    except:
+        pass
+
+    axes[0].plot(train_loss_list, label=label)
+    axes[1].plot(train_acc_list, label=label)
+    _ = axes[0].set_title("Training Loss")
+    _ = axes[1].set_title("Training Accuracy")
+    _ = axes[0].set_xlabel("Epoch")
+    _ = axes[0].set_ylabel("Loss")
+    _ = axes[1].set_xlabel("Epoch")
+    _ = axes[1].set_ylabel("Accuracy")
+    _ = axes[0].legend()
+    _ = axes[1].legend()
+
+def plot_val(axes, val_loss_list, val_acc_list, label=None):
+    try:
+        val_acc_list = [v.cpu() for v in val_acc_list]
+    except:
+        pass
+
+    axes[0].plot(val_loss_list, label=label)
+    axes[1].plot(val_acc_list, label=label)
+    _ = axes[0].set_title("Validation Loss")
+    _ = axes[1].set_title("Validation Accuracy")
+    _ = axes[0].set_xlabel("Epoch")
+    _ = axes[0].set_ylabel("Loss")
+    _ = axes[1].set_xlabel("Epoch")
+    _ = axes[1].set_ylabel("Accuracy")
+    _ = axes[0].legend()
+    _ = axes[1].legend()
+
+def multiplot_train_val(metrics, save, name="", save_dir="./outputs/compare/plots"):
+    if (not os.path.exists(save_dir)):
+        os.makedirs(save_dir)
+
+    train_fig, train_axes = plt.subplots(1,2, layout="constrained")
+    val_fig, val_axes = plt.subplots(1,2, layout="constrained")
+
+    for k,v in metrics.items():
+        train_loss_list = v["train"]["loss"]
+        train_acc_list = v["train"]["acc"]
+        val_loss_list = v["val"]["loss"]
+        val_acc_list = v["val"]["acc"]
+        plot_train(train_axes, train_loss_list, train_acc_list, k)
+        plot_val(val_axes, val_loss_list, val_acc_list, k)
+
+    save_plot(save, save_dir, "multiplot", "val"+name)
+    save_plot(save, save_dir, "multiplot", "train"+name)
 
 def plot_anomalies(validation_dataset, 
                    test_dataset, 
@@ -180,8 +203,11 @@ def plot_anomaly_distribution(train, validation, batch_size, save=False, name=No
     axes[1].bar(bs_list, validation_normal, bottom=validation, color='green')
 
     plt.tight_layout()
+    save_plot(save, save_dir, "dist", name) 
+
+def save_plot(save, save_dir, plot_type, name):
     if (save):
-        plt.savefig("{}/dist_{}.jpeg".format(save_dir, name))
+        plt.savefig("{}/{}_{}.jpeg".format(save_dir, plot_type, name))
         plt.close()
     else:
         plt.show()

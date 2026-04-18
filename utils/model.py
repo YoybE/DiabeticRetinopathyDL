@@ -16,7 +16,7 @@ def train_model(model,
                 device=None, 
                 lr=0.001, 
                 num_epochs=20,
-                save_dir = "./outputs/compare/plots", 
+                save_dir="./outputs/compare/plots", 
                 verbose=True):
     '''
     Trains model and plots Training/Validation Loss/Accuracy graphs
@@ -114,6 +114,8 @@ def train_model(model,
 
         plot_anomaly_distribution(train, validation, train_dataloader.batch_size, save=True, name=model._name, save_dir=save_dir)
         plot_train_val(train_loss_list, train_acc_list, val_loss_list, val_acc_list, save=True, name=model._name, save_dir=save_dir)
+    
+    return train_loss_list, train_acc_list, val_loss_list, val_acc_list
 
 def evaluate_model(model, dataloader, output_dir="./outputs", device=None):
     '''

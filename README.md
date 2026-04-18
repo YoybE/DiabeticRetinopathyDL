@@ -100,6 +100,9 @@ model = UNetClassifier().to(device)
 ```python
 from utils import train_model
 
+# Do note that train_model returns loss and accuracy lists,
+# do _, _, _, _ = train_model(...) if not required
+
 train_model(
     model=model,
     criterion=nn.CrossEntropyLoss(),
@@ -159,6 +162,28 @@ print(f"Accuracy: {accuracy:.2f}% | F1: {f1:.2f} | F2: {f2:.2f} | Anomaly Detect
 
 Segmentation output images are saved as PNG files to `output_dir` when the dataloader has `shuffle=False`.
 
+#### For evaluating all train, validation and test splits at once
+```python
+from compare.py import save_metrics, print_metrics
+
+# Save metric lists
+train_metrics, validation_metrics, test_metrics = save_metrics(
+    model, 
+    train_dataloader, 
+    validation_dataloader, 
+    test_dataloader, 
+    device=None, eval_dir="./outputs/compare/out"
+)
+
+# Print metrics table
+print_metrics(
+    model, 
+    train_metrics, 
+    validation_metrics,
+    test_metrics
+)
+```
+
 ---
 
 ## Visualisation Utilities
@@ -174,12 +199,30 @@ visualize_dataset()  # Plots 5 samples from each class (Healthy / Severe DR)
 
 ### Training and validation curves
 
+#### Single Plot
 ```python
 from utils import plot_train_val
 plot_train_val(
     train_loss_list, train_acc_list,
     val_loss_list, val_acc_list,
     save=True, name="UNetClassifier",
+    save_dir="./outputs/compare/plots",
+)
+```
+#### Multi Plot
+For doing comparisons between multiple models, ensure that their loss and accuracy lists are saved when doing training.
+```python
+train_loss_list, train_acc_list, val_loss_list, val_acc_list = train_model(...)
+```
+This is then used to create a dictionary with the format below which is repeated for other models. This dictionary is then passed to the function `multiplot_train_val()`.
+```python
+dictionary = {"Model_Name":{"train":{"loss": train_loss_list,"acc"},"val":{"loss": train_loss_list,"acc"}}}
+```
+```python
+from utils import multiplot_train_val
+multiplot_train_val(
+    dictionary,
+    save, name="",
     save_dir="./outputs/compare/plots",
 )
 ```
