@@ -81,11 +81,12 @@ def load_all_models():
     return loaded, device
 
 
-def get_class_samples(class_folder: str, n: int = N_SAMPLES) -> list:
+def get_class_samples(class_folder: str, n: int = None) -> list:
     cls_dir = os.path.join(DATASET_DIR, class_folder)
     if not os.path.exists(cls_dir):
         return []
-    return sorted(f for f in os.listdir(cls_dir) if f.lower().endswith(".png"))[:n]
+    files = sorted(f for f in os.listdir(cls_dir) if f.lower().endswith(".png"))
+    return files[:n] if n is not None else files
 
 
 @st.cache_resource
@@ -164,7 +165,8 @@ def image_source_selector(key_prefix: str):
             horizontal=True,
             key=f"{key_prefix}_ds_cls",
         )
-        samples = get_class_samples(cls, N_SAMPLES)
+        n_ds = st.session_state.get("samples_n", N_SAMPLES)
+        samples = get_class_samples(cls, n_ds)
         if samples:
             chosen = st.selectbox(f"Image", samples, key=f"{key_prefix}_ds_sel")
             img = Image.open(os.path.join(DATASET_DIR, cls, chosen)).convert("RGB")
