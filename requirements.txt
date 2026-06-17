@@ -1,0 +1,9 @@
+streamlit
+kagglehub
+torch
+torchvision
+Pillow
+numpy
+matplotlib
+gcsfs
+st-files-connection

@@ -1,7 +1,9 @@
 import streamlit as st
+from st_files_connection import FilesConnection
 import torch
 import torchvision.transforms as transforms
 from PIL import Image
+from utils.loader import import_dataset
 import numpy as np
 import matplotlib.pyplot as plt
 import os
@@ -51,8 +53,23 @@ MODEL_INFO = {
     ),
 }
 
+# upload models from gcs
+@st.cache_resource
+def get_models_gcs():
+    if not os.path.exists(CLASSIFIERS_DIR):
+        conn = st.connection('gcs', type=FilesConnection)
+        conn.fs.get("50039-dbrtpydl/classifiers", CLASSIFIERS_DIR, recursive=True)
+
+
+#import dataset locally w/o uploading to github
+@st.cache_resource
+def get_dataset_kaggle():
+    import_dataset()
+
+
 def get_available_models() -> dict:
     models = {}
+    get_models_gcs()
     if os.path.exists(CLASSIFIERS_DIR):
         for fname in sorted(os.listdir(CLASSIFIERS_DIR)):
             if fname.endswith(".pt"):
@@ -139,6 +156,7 @@ def run_inference(model, image: Image.Image, device):
 
 
 def image_source_selector(key_prefix: str):
+    get_dataset_kaggle()
     source = st.radio(
         "Image source",
         ["Upload", "Dataset sample", "Test set sample"],
